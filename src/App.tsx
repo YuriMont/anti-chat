@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 function App() {
   const [isBlurred, setIsBlurred] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
   const [contentOverride, setContentOverride] = useState<null | string>(null);
   const [count, setCount] = useState(() => {
     const savedCount = localStorage.getItem("blurCount");
@@ -35,6 +36,13 @@ function App() {
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.keyCode == 44 || e.code == "PrintScreen") {
+        e.preventDefault();
+        setShowOverlay(true);
+        setTimeout(() => setShowOverlay(false), 3000);
+        return false;
+      }
+
       if (
         (e.ctrlKey &&
           e.shiftKey &&
@@ -59,24 +67,29 @@ function App() {
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("blur", handleWindowBlur);
     window.addEventListener("focus", handleWindowFocus);
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keyup", handleKeyDown);
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("blur", handleWindowBlur);
       window.removeEventListener("focus", handleWindowFocus);
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keyup", handleKeyDown);
     };
   }, []);
 
   return (
     <div
       id="content"
-      className={`w-full flex flex-col gap-8 items-center justify-center py-10 ${
+      className={`w-full h-fit flex flex-col gap-8 items-center justify-center py-10 ${
         isBlurred ? "blur-3xl" : ""
       }`}
       onCopy={(e) => e.preventDefault()}
     >
+      {showOverlay && (
+        <div className="z-[99999] bg-black w-screen h-screen flex items-center justify-center fixed top-0 left-0">
+          <h1 className="text-white">Capturas de tela não são permitidas!</h1>
+        </div>
+      )}
       <h2>Você saiu da aba/janela {count} vezes.</h2>
 
       {contentOverride ? (
