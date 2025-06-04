@@ -1,5 +1,5 @@
 import disableDevtool from "disable-devtool";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function App() {
   const [isBlurred, setIsBlurred] = useState(false);
@@ -10,6 +10,8 @@ function App() {
     return savedCount ? parseInt(savedCount, 10) : 0;
   });
 
+  const hasIncrementedRef = useRef(false);
+
   useEffect(() => {
     disableDevtool({
       disableMenu: true,
@@ -18,20 +20,26 @@ function App() {
     });
 
     const handleVisibilityChange = () => {
-      if (document.hidden) {
+      if (document.hidden && !hasIncrementedRef.current) {
         incrementarContador();
+        hasIncrementedRef.current = true;
         setIsBlurred(true);
-      } else {
+      } else if (!document.hidden) {
+        hasIncrementedRef.current = false;
         setIsBlurred(false);
       }
     };
 
     const handleWindowBlur = () => {
-      incrementarContador();
-      setIsBlurred(true);
+      if (!hasIncrementedRef.current) {
+        incrementarContador();
+        hasIncrementedRef.current = true;
+        setIsBlurred(true);
+      }
     };
 
     const handleWindowFocus = () => {
+      hasIncrementedRef.current = false;
       setIsBlurred(false);
     };
 
@@ -57,6 +65,13 @@ function App() {
     };
 
     const incrementarContador = () => {
+      const isReloading = sessionStorage.getItem("isReloading") === "true";
+
+      if (isReloading) {
+        sessionStorage.removeItem("isReloading");
+        return;
+      }
+
       setCount((prevCount) => {
         const newCount = prevCount + 1;
         localStorage.setItem("blurCount", newCount.toString());
@@ -64,16 +79,22 @@ function App() {
       });
     };
 
+    const handleBeforeUnload = () => {
+      sessionStorage.setItem("isReloading", "true");
+    };
+
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("blur", handleWindowBlur);
     window.addEventListener("focus", handleWindowFocus);
     document.addEventListener("keyup", handleKeyDown);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("blur", handleWindowBlur);
       window.removeEventListener("focus", handleWindowFocus);
       document.removeEventListener("keyup", handleKeyDown);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
 
