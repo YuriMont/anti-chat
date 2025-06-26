@@ -1,102 +1,16 @@
-import disableDevtool from "disable-devtool";
-import { useEffect, useRef, useState } from "react";
+import MoireText from "./components/MoireText";
+import SlidingOpacityText from "./components/SlidingOpacityText ";
+import TextBeam from "./components/TextBeam";
+import TextoVibrando from "./components/TextoVibrando";
+import TypewriterLoopText from "./components/TypewriterLoopText";
+import { useSecurityControl } from "./hooks/useSecurityControl";
+
+const FULL_TEXT =
+  "Qual foi a principal causa da Revolução Francesa, iniciada em 1789?";
 
 function App() {
-  const [isBlurred, setIsBlurred] = useState(false);
-  const [showOverlay, setShowOverlay] = useState(false);
-  const [contentOverride, setContentOverride] = useState<null | string>(null);
-  const [count, setCount] = useState(() => {
-    const savedCount = localStorage.getItem("blurCount");
-    return savedCount ? parseInt(savedCount, 10) : 0;
-  });
-
-  const hasIncrementedRef = useRef(false);
-
-  useEffect(() => {
-    disableDevtool({
-      disableMenu: true,
-      ondevtoolopen: () => setContentOverride("DevTools aberto!"),
-      ondevtoolclose: () => setContentOverride(null),
-    });
-
-    const handleVisibilityChange = () => {
-      if (document.hidden && !hasIncrementedRef.current) {
-        incrementarContador();
-        hasIncrementedRef.current = true;
-        setIsBlurred(true);
-      } else if (!document.hidden) {
-        hasIncrementedRef.current = false;
-        setIsBlurred(false);
-      }
-    };
-
-    const handleWindowBlur = () => {
-      if (!hasIncrementedRef.current) {
-        incrementarContador();
-        hasIncrementedRef.current = true;
-        setIsBlurred(true);
-      }
-    };
-
-    const handleWindowFocus = () => {
-      hasIncrementedRef.current = false;
-      setIsBlurred(false);
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.keyCode == 44 || e.code == "PrintScreen") {
-        e.preventDefault();
-        setShowOverlay(true);
-        setTimeout(() => setShowOverlay(false), 3000);
-        return false;
-      }
-
-      if (
-        (e.ctrlKey &&
-          e.shiftKey &&
-          ["I", "J", "C"].includes(e.key.toUpperCase())) ||
-        (e.ctrlKey && e.key.toUpperCase() === "U") ||
-        e.key === "F12"
-      ) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-    };
-
-    const incrementarContador = () => {
-      const isReloading = sessionStorage.getItem("isReloading") === "true";
-
-      if (isReloading) {
-        sessionStorage.removeItem("isReloading");
-        return;
-      }
-
-      setCount((prevCount) => {
-        const newCount = prevCount + 1;
-        localStorage.setItem("blurCount", newCount.toString());
-        return newCount;
-      });
-    };
-
-    const handleBeforeUnload = () => {
-      sessionStorage.setItem("isReloading", "true");
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("blur", handleWindowBlur);
-    window.addEventListener("focus", handleWindowFocus);
-    document.addEventListener("keyup", handleKeyDown);
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("blur", handleWindowBlur);
-      window.removeEventListener("focus", handleWindowFocus);
-      document.removeEventListener("keyup", handleKeyDown);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
+  const { isBlurred, showOverlay, contentOverride, count } =
+    useSecurityControl();
 
   return (
     <div
@@ -117,21 +31,19 @@ function App() {
         <p>{contentOverride}</p>
       ) : (
         <div className="flex flex-col gap-3">
-          <p aria-label="Qual foi a principal causa da Revolução Francesa, iniciada em 1789?">
-            Qual foi a principal causa da Revolução Francesa, iniciada em 1789?
-          </p>
+          <TypewriterLoopText text={FULL_TEXT} />
+          <TextoVibrando text={FULL_TEXT} />
+          <SlidingOpacityText text={FULL_TEXT} />
+          <TextBeam text={FULL_TEXT} />
+          <MoireText text={FULL_TEXT} />
           <ul className="flex flex-col gap-4">
             <li>A) A expansão militar do Império Otomano sobre a Europa.</li>
-
             <li>B) O crescimento do movimento socialista na Inglaterra.</li>
-
             <li>
               C) A insatisfação popular com os privilégios da nobreza e a crise
               econômica.
             </li>
-
             <li>D) A invasão da França por tropas espanholas.</li>
-
             <li>E) A unificação da Alemanha sob Bismarck.</li>
           </ul>
         </div>

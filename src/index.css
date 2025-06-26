@@ -1,1 +1,43 @@
 @import "tailwindcss";
+
+.ruido {
+  animation: vibrar 1s infinite alternate;
+}
+
+@keyframes vibrar {
+  0% {
+    text-shadow: 0px 0px 0 black, 0px 0px 0 gray;
+  }
+  50% {
+    text-shadow: 1px 1px 0 black, -1px -1px 0 gray;
+  }
+  100% {
+    text-shadow: 2px 2px 0 black, -2px -2px 0 gray;
+  }
+}
+
+@keyframes pulse-opacity {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.01;
+  }
+}
+
+.animate-pulse {
+  animation: pulse-opacity 2s ease-in-out infinite;
+}
+
+.moire-container {
+  perspective: 1000px;
+}
+.moire-overlay {
+  transform: translate(
+    calc(var(--mouse-x, 0px) / 50 - 10px),
+    calc(var(--mouse-y, 0px) / 50 - 10px)
+  );
+  mix-blend-mode: difference;
+  transition: transform 0.1s ease-out;
+}
