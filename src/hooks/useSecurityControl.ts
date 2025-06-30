@@ -14,7 +14,7 @@ export function useSecurityControl() {
 
   useEffect(() => {
     disableDevtool({
-      disableMenu: true,
+      disableMenu: false,
       ondevtoolopen: () => setContentOverride("DevTools aberto!"),
       ondevtoolclose: () => setContentOverride(null),
     });

@@ -2,6 +2,7 @@ import MoireText from "./components/MoireText";
 import ObfuscatedText from "./components/ObfuscatedText";
 import SlidingOpacityText from "./components/SlidingOpacityText ";
 import TextBeam from "./components/TextBeam";
+import TextDisplay from "./components/TextDisplay";
 import TextoVibrando from "./components/TextoVibrando";
 import TypewriterLoopText from "./components/TypewriterLoopText";
 import { useSecurityControl } from "./hooks/useSecurityControl";
@@ -38,6 +39,7 @@ function App() {
           <TextBeam text={FULL_TEXT} />
           <MoireText text={FULL_TEXT} />
           <ObfuscatedText text={FULL_TEXT} />
+          <TextDisplay text={FULL_TEXT} />
           <ul className="flex flex-col gap-4">
             <li>A) A expansão militar do Império Otomano sobre a Europa.</li>
             <li>B) O crescimento do movimento socialista na Inglaterra.</li>
